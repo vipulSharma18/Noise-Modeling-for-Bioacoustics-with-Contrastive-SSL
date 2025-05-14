@@ -1,0 +1,31 @@
+# @package _global_
+
+trainer:
+  logger:
+    metric:
+      test:
+        top1_acc:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 1
+        top5_acc:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 5
+        top10_acc:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 10
+      val:
+        top1_acc:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 1
+        top5_acc:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 5
+        top10_acc:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 10

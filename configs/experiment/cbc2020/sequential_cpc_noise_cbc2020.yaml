@@ -1,0 +1,142 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - /data: cbc2020_sequential
+
+hydra:
+  launcher:
+    timeout_min: 600
+    mem_gb: 70
+
+trainer:
+  # ===== Base Trainer =====
+  _target_: ssl_bioacoustics.custom_trainers.SlidingCPCTrainer
+  convolution_window: 3
+
+  # ===== loss Parameters =====
+  loss:
+    _target_: stable_ssl.losses.NTXEntLoss
+    temperature: 0.5
+
+  # ===== Data Parameters =====
+  data:
+    _num_classes: 100
+    train:
+      batch_size: 64  # each sample is 7-0.5/0.25 + 1 = 27 windows.
+      drop_last: False
+      shuffle: True
+      dataset:
+        enable_cache: False
+        cache_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/preprocessed_cache/train/cpc_noise
+        spectrogram_gpu: False
+        random_noise: True
+        fixed_noise: False
+        noise_transform:
+          _target_: ssl_bioacoustics.custom_transforms.EnvironmentalNoise
+          snr: 0.1
+          noise_source:
+            _target_: ssl_bioacoustics.custom_datasets.AudioDataset
+            root_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/
+            meta_file: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/noise.csv
+            split: noise
+            sampling_rate: 32000
+            length: 3
+            offset: 0
+        transform:
+          _target_: ssl_bioacoustics.custom_samplers.TransformSlideBySlide
+          slide_transforms:
+            _target_: torchvision.transforms.v2.Compose
+            transforms:
+            - _target_: torchvision.transforms.v2.ToImage
+            - _target_: torchvision.transforms.v2.RandomResizedCrop
+              size: 224
+            - _target_: torchvision.transforms.v2.ToDtype
+              dtype:
+                _target_: stable_ssl.utils.str_to_dtype
+                _args_: [float32]
+              scale: True
+
+    val:
+      batch_size: 64
+      dataset:
+        enable_cache: True
+        cache_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/preprocessed_cache/val/cpc_noise
+        spectrogram_gpu: False
+        random_noise: False
+        fixed_noise: False
+        noise_transform: null
+        transform:
+          _target_: ssl_bioacoustics.custom_samplers.TransformSlideBySlide
+          slide_transforms:
+            _target_: torchvision.transforms.v2.Compose
+            transforms:
+            - _target_: torchvision.transforms.v2.ToImage
+            - _target_: torchvision.transforms.v2.CenterCrop
+              size: 224
+            - _target_: torchvision.transforms.v2.ToDtype
+              dtype:
+                _target_: stable_ssl.utils.str_to_dtype
+                _args_: [float32]
+              scale: True
+
+    test:
+      batch_size: 64
+      dataset:
+        enable_cache: True
+        cache_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/preprocessed_cache/test/cpc_noise
+        spectrogram_gpu: False
+        random_noise: False
+        fixed_noise: False
+        noise_transform: null
+        transform:
+          _target_: ssl_bioacoustics.custom_samplers.TransformSlideBySlide
+          slide_transforms:
+            _target_: torchvision.transforms.v2.Compose
+            transforms:
+            - _target_: torchvision.transforms.v2.ToImage
+            - _target_: torchvision.transforms.v2.CenterCrop
+              size: 224
+            - _target_: torchvision.transforms.v2.ToDtype
+              dtype:
+                _target_: stable_ssl.utils.str_to_dtype
+                _args_: [float32]
+              scale: True
+
+  # ===== Module Parameters =====
+  module:
+    backbone:
+      _target_: ssl_bioacoustics.CNN_LSTM.load_backbone
+      name: cnn_lstm
+      num_classes: null
+      weights: False
+      output_size: 512
+      return_hidden_state: True
+    projector:
+      _target_: stable_ssl.modules.MLP
+      sizes: [512, 128]
+      activation: ReLU
+      batch_norm: False
+    backbone_classifier:
+      _target_: torch.nn.Linear
+      in_features: 512
+      out_features: ${trainer.data._num_classes}
+
+  # ===== Optim Parameters =====
+  optim:
+    epochs: 75
+    optimizer:
+      _target_: torch.optim.Adam
+      _partial_: True
+      lr: 0.0002
+      weight_decay: 1e-7
+    scheduler:
+      _target_: torch.optim.lr_scheduler.LambdaLR
+      _partial_: True
+      lr_lambda:
+        _target_: ssl_bioacoustics.utils.dummy_scheduler_lambda
+        _partial_: True
+  # ===== Logger WandB Parameters =====
+  logger:
+    wandb:
+      group: sequential_cpc_noise_cbc2020_${module.backbone.name}

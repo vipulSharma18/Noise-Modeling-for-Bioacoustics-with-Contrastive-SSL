@@ -1,0 +1,31 @@
+[project]
+name = "ssl_bioacoustics"
+description = "SSL for bioacoustics"
+authors = [
+    {name = "Vipul Sharma", email = "vipul_sharma@brown.edu"},
+    {name = "Randall Balestriero", email = "randallbalestriero@gmail.com"},
+]
+license = {text = "MIT"}
+readme = {file = "README.md", content-type = "text/markdown"}
+dependencies = [
+    "pytest",
+    "pytest-cov",
+    "ipython",
+    "notebook",
+    "black",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "PyWavelets",
+    "librosa",
+    "scikit-learn",
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "stable-ssl @ git+https://github.com/vipulSharma18/stable-SSL.git@main#egg=stable-ssl",
+]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["ssl_bioacoustics"]

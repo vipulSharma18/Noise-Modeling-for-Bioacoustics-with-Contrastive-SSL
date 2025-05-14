@@ -1,0 +1,7 @@
+# @package _global_
+
+hydra:
+  sweep:
+    dir: logs/multirun/${now:%Y-%m-%d}/${trainer._target_}_${trainer.data.train.dataset._target_}_${now:%H-%M-%S}
+    subdir: logs/multirun/${now:%Y-%m-%d}/${trainer._target_}_${trainer.data.train.dataset._target_}_${now:%H-%M-%S}/seed=${trainer.hardware.seed}_job=${hydra.job.num}
+    # subdir: logs/multirun/${now:%Y-%m-%d}/${trainer._target_}_${trainer.data.train.dataset._target_}_${now:%H-%M-%S}/${corruption_type}_data=${data_noise}_aug=${augmentation_noise}_model=${model.backbone_model}_seed=${hardware.seed}_job=${hydra.job.num}

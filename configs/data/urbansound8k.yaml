@@ -1,0 +1,24 @@
+# @package _global_
+
+trainer:
+  data:
+    _num_classes: 10
+    train:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: ssl_bioacoustics.custom_datasets.UrbanSoundDataset
+        root_dir: /oscar/home/vsharm44/jobtmp/UrbanSound8k/images/archive/
+        fold: 1
+        csv_file: /oscar/home/vsharm44/jobtmp/UrbanSound8k/images/archive/UrbanSound8K.csv
+        split: train
+
+    test:  # same as train but have to repeat because train is skipped during eval
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: ssl_bioacoustics.custom_datasets.UrbanSoundDataset
+        root_dir: /oscar/home/vsharm44/jobtmp/UrbanSound8k/images/archive/
+        fold: ${trainer.data.train.dataset.fold}
+        csv_file: /oscar/home/vsharm44/jobtmp/UrbanSound8k/images/archive/UrbanSound8K.csv
+        split: test

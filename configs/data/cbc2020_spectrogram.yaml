@@ -1,0 +1,23 @@
+# @package _global_
+
+trainer:
+  data:
+    _num_classes: 100
+    train:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: torchvision.datasets.ImageFolder
+        root: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/train_spectrogram
+    val:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: torchvision.datasets.ImageFolder
+        root: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/val_spectrogram
+    test:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: torchvision.datasets.ImageFolder
+        root: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/test_spectrogram

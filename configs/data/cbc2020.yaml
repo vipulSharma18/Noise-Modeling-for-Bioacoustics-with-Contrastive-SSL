@@ -1,0 +1,38 @@
+# @package _global_
+
+trainer:
+  data:
+    _num_classes: 100
+    train:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: ssl_bioacoustics.custom_datasets.AudioDataset
+        root_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/
+        meta_file: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/train.csv
+        split: train
+        sampling_rate: 32000
+        length: 7
+        offset: 0
+    val:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: ssl_bioacoustics.custom_datasets.AudioDataset
+        root_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/
+        meta_file: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/val.csv
+        split: val
+        sampling_rate: 32000
+        length: 7
+        offset: 0
+    test:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 6
+      dataset:
+        _target_: ssl_bioacoustics.custom_datasets.AudioDataset
+        root_dir: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/
+        meta_file: /users/vsharm44/projects/ssl-bioacoustics/data/CBC2020/test.csv
+        split: test
+        sampling_rate: 32000
+        length: 7
+        offset: 0

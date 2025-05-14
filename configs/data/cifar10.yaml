@@ -1,0 +1,20 @@
+# @package _global_
+
+trainer:
+  data:
+    _num_classes: 10
+    train:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 4
+      dataset:
+        _target_: torchvision.datasets.CIFAR10
+        root: data
+        train: True
+        download: True
+    test:
+      _target_: torch.utils.data.DataLoader
+      num_workers: 4
+      dataset:
+        _target_: torchvision.datasets.CIFAR10
+        train: False
+        root: data

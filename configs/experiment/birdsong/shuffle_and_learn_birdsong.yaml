@@ -1,0 +1,216 @@
+# @package _global_
+
+defaults:
+  - _self_
+  - /data: birdsong
+
+hydra:
+  launcher:
+    timeout_min: 20
+    mem_gb: 24
+
+trainer:
+  # ===== Base Trainer =====
+  _target_: ssl_bioacoustics.custom_trainers.ShuffleAndLearnTrainer
+
+  # ===== loss Parameters =====
+  loss:
+    _target_: torch.nn.CrossEntropyLoss
+
+  # ===== Data Parameters =====
+  data:
+    _num_classes: 2
+    train: # training dataset as indicated by name
+      batch_size: 240
+      shuffle: True
+      dataset:
+        transform:
+          _target_: ssl_bioacoustics.custom_samplers.ConcatViewsSampler
+          transforms:
+            # (a,b,c) order of audio chunks
+            - _target_: torchvision.transforms.v2.Compose
+              transforms:
+                - _target_: ssl_bioacoustics.custom_transforms.Spectrogram
+                  sampling_rate: 22000
+                  spectrogram: cqt
+                  convert_to_db: False
+                  spectrogram_mode: rgb
+                  kwargs:
+                    baseline_note: C1
+                    freq_bins: 70
+                    bins_per_octave: 12
+                - _target_: ssl_bioacoustics.custom_transforms.ChunkShuffleLabel
+                  number_of_chunks: 4
+                  chunk_order: [0,1,2]
+                  label: 1
+                - _target_: torchvision.transforms.v2.ToImage
+                - _target_: torchvision.transforms.v2.ToDtype
+                  dtype:
+                    _target_: stable_ssl.utils.str_to_dtype
+                    _args_: [float32]
+                  scale: True
+            # (d,a,b) order of audio chunks
+            - _target_: torchvision.transforms.v2.Compose
+              transforms:
+                - _target_: ssl_bioacoustics.custom_transforms.Spectrogram
+                  sampling_rate: 22000
+                  spectrogram: cqt
+                  convert_to_db: False
+                  spectrogram_mode: rgb
+                  kwargs:
+                    baseline_note: C1
+                    freq_bins: 70
+                    bins_per_octave: 12
+                - _target_: ssl_bioacoustics.custom_transforms.ChunkShuffleLabel
+                  number_of_chunks: 4
+                  chunk_order: [3,0,1]
+                  label: 0
+                - _target_: torchvision.transforms.v2.ToImage
+                - _target_: torchvision.transforms.v2.ToDtype
+                  dtype:
+                    _target_: stable_ssl.utils.str_to_dtype
+                    _args_: [float32]
+                  scale: True
+            # (b,a,d) order of audio chunks
+            - _target_: torchvision.transforms.v2.Compose
+              transforms:
+                - _target_: ssl_bioacoustics.custom_transforms.Spectrogram
+                  sampling_rate: 22000
+                  spectrogram: cqt
+                  convert_to_db: False
+                  spectrogram_mode: rgb
+                  kwargs:
+                    baseline_note: C1
+                    freq_bins: 70
+                    bins_per_octave: 12
+                - _target_: ssl_bioacoustics.custom_transforms.ChunkShuffleLabel
+                  number_of_chunks: 4
+                  chunk_order: [1,0,3]
+                  label: 0
+                - _target_: torchvision.transforms.v2.ToImage
+                - _target_: torchvision.transforms.v2.ToDtype
+                  dtype:
+                    _target_: stable_ssl.utils.str_to_dtype
+                    _args_: [float32]
+                  scale: True
+
+    test:
+      batch_size: 240
+      dataset:
+        transform:
+          _target_: ssl_bioacoustics.custom_samplers.ConcatViewsSampler
+          transforms:
+            # (a,b,c) order of audio chunks
+            - _target_: torchvision.transforms.v2.Compose
+              transforms:
+                - _target_: ssl_bioacoustics.custom_transforms.Spectrogram
+                  sampling_rate: 22000
+                  spectrogram: cqt
+                  convert_to_db: False
+                  spectrogram_mode: rgb
+                  kwargs:
+                    baseline_note: C1
+                    freq_bins: 70
+                    bins_per_octave: 12
+                - _target_: ssl_bioacoustics.custom_transforms.ChunkShuffleLabel
+                  number_of_chunks: 4
+                  chunk_order: [0,1,2]
+                  label: 1
+                - _target_: torchvision.transforms.v2.ToImage
+                - _target_: torchvision.transforms.v2.ToDtype
+                  dtype:
+                    _target_: stable_ssl.utils.str_to_dtype
+                    _args_: [float32]
+                  scale: True
+            # (d,a,b) order of audio chunks
+            - _target_: torchvision.transforms.v2.Compose
+              transforms:
+                - _target_: ssl_bioacoustics.custom_transforms.Spectrogram
+                  sampling_rate: 22000
+                  spectrogram: cqt
+                  convert_to_db: False
+                  spectrogram_mode: rgb
+                  kwargs:
+                    baseline_note: C1
+                    freq_bins: 70
+                    bins_per_octave: 12
+                - _target_: ssl_bioacoustics.custom_transforms.ChunkShuffleLabel
+                  number_of_chunks: 4
+                  chunk_order: [3,0,1]
+                  label: 0
+                - _target_: torchvision.transforms.v2.ToImage
+                - _target_: torchvision.transforms.v2.ToDtype
+                  dtype:
+                    _target_: stable_ssl.utils.str_to_dtype
+                    _args_: [float32]
+                  scale: True
+            # (b,a,d) order of audio chunks
+            - _target_: torchvision.transforms.v2.Compose
+              transforms:
+                - _target_: ssl_bioacoustics.custom_transforms.Spectrogram
+                  sampling_rate: 22000
+                  spectrogram: cqt
+                  convert_to_db: False
+                  spectrogram_mode: rgb  # raw mode will need a custom model with 1 channel/grayscale in conv2d layer's input_channel param
+                  kwargs:
+                    baseline_note: C1
+                    freq_bins: 70
+                    bins_per_octave: 12
+                - _target_: ssl_bioacoustics.custom_transforms.ChunkShuffleLabel
+                  number_of_chunks: 4
+                  chunk_order: [1,0,3]
+                  label: 0
+                - _target_: torchvision.transforms.v2.ToImage
+                - _target_: torchvision.transforms.v2.ToDtype
+                  dtype:
+                    _target_: stable_ssl.utils.str_to_dtype
+                    _args_: [float32]
+                  scale: True
+
+  # ===== Module Parameters =====
+  module:
+    backbone:
+      _target_: stable_ssl.modules.load_backbone
+      name: alexnet  # paper had alexnet but it's too old to be acceptable
+      num_classes: null
+      weights: False
+    projector:
+      _target_: stable_ssl.modules.MLP
+      sizes: [4096, 512, 128]  # 3 views in parallel fed to projector, so dim remains the same.
+      activation: ReLU
+      batch_norm: False
+    projector_classifier:
+      _target_: torch.nn.Linear
+      in_features: 384  # 128*3 (sizes of proj) 3 views concatenated to pass to classifier.
+      out_features: ${trainer.data._num_classes}
+    backbone_classifier:
+      _target_: torch.nn.Linear
+      in_features: 12288  # 4096*3 for alexnet. views in concatenated to pass to backbone.
+      out_features: ${trainer.data._num_classes}
+
+  # ===== Optim Parameters =====
+  optim:
+    epochs: 20
+    optimizer:
+      _target_: torch.optim.Adam
+      _partial_: True
+      lr: 0.0009
+      eps: 1e-5
+      weight_decay: 0.03
+    scheduler:
+      _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+      _partial_: True
+  # ===== Logger WandB Parameters =====
+  logger:
+    wandb:
+      group: shuffle_and_learn_birdsong_test
+    metric:
+      test:
+        acc1:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: 1
+        acc_multi:
+          _target_: torchmetrics.classification.MulticlassAccuracy
+          num_classes: ${trainer.data._num_classes}
+          top_k: ${trainer.data._num_classes}
