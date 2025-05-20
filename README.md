@@ -2,6 +2,8 @@
 
 # SSL-Bioacoustics
 
+Bioacoustics data suffers from a lack of fine-grained labels and high noise. We propose a method based on Contrastive Predictive Coding (CPC) that aims for noise robustness by contrastive learning with stochastic noise augmentations of the audio, and avoids the need for labels. Further, we modify CPC to enforce consistency across time in the latent space. We test our method on the Cornell Bird Challenge dataset with data from 100 bird species. Our method performs poorly compared to Supervised Learning due to a limited variety of audio augmentations caused by the engineering limitations of scaling the augmentations.
+
 Create virtual env and install from source as follows:
 
 ```bash
